@@ -12,3 +12,11 @@ class PipInstallException(PipException):
 
 class PipUnInstallException(PipException):
     pass
+
+
+class PipRequestException(PipException):
+    pass
+
+
+class PipProxyException(PipException):
+    pass
