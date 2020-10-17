@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask, redirect, url_for
+from flask import Flask
 
 from pipper.pipper_gen import PipperGenerator
 from utils.exceptions import PipRequestException, PipException
@@ -8,10 +8,13 @@ from utils.exceptions import PipRequestException, PipException
 
 class FlaskPipper(Flask):
     def run_command(self, data, req_type=None):
+        on_success = "success"
+        if data["option"] == "list":
+            on_success = "list"
         if not req_type:
             logging.error("Didn't get requst type!")
             raise PipRequestException("Didn't get requst type!")
-        if type == "POST":
+        if req_type == "POST":
             upgrade_arg = "-U"
             if data["option"] != "install":
                 upgrade_arg = ""
@@ -19,7 +22,7 @@ class FlaskPipper(Flask):
             args = {
                 "function": data["option"],
                 "upgrade": upgrade_arg,
-                "package": "package"
+                "package": data["package"]
             }
             proxies = {
                 "http": data["http-proxy"],
@@ -30,8 +33,8 @@ class FlaskPipper(Flask):
 
             try:
                 out = pipper.run_pip()
-                return redirect(url_for('success', msg=out))
+                return on_success, out
             except PipException as e:
-                return redirect(url_for("failure", msg=str(e)))
+                return "failure", str(e)
 
 

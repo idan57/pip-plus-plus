@@ -27,24 +27,22 @@ class Pipper(object):
     def get_pip(self):
         pass
 
-    def is_pip_installed(self, pip_command=None):
+    def is_not_pip_installed(self, pip_command=None):
         pass
 
     def run_pip(self):
         if self.proxies:
             self._set_proxies()
         args = f"{self.args['function']} {self.args['upgrade']} {self.args['package']}"
-        if self.args['version']:
-            args += f"=={self.args['version']}"
         logging.info(f"Runnning pip {self.args['function']} on the machine.")
         command = self.get_run_command(args)
-        proc = subprocess.run(command)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE)
         if proc.returncode:
             logging.warn(f"Failed to {self.args['function']} the package!")
             raise EXCEPTIONS[self.args["function"]]
 
         if self.args['function'] != "install" and self.args['function'] != "uninstall":
-            return proc.stdout
+            return proc.communicate()[0]
 
     def get_run_command(self, args):
         pass
@@ -74,12 +72,12 @@ class PipperLinux(Pipper):
     def get_pip(self):
         py_exec = sys.executable
         self.version = py_exec.replace("python", "")
-        if not self.is_pip_installed():
+        if self.is_not_pip_installed():
             logging.info("pip is not installed, installing pip")
             self.install_pip()
         return f"pip{self.version}"
 
-    def is_pip_installed(self, pip_command=None):
+    def is_not_pip_installed(self, pip_command=None):
         proc = subprocess.run([f"pip{self.version}"] + ["list"])
         return proc.returncode
 
@@ -102,21 +100,21 @@ class PipperWindows(Pipper):
 
     def get_pip(self):
         pip_command = [sys.executable, f"-m pip{self.version}"]
-        if not self.is_pip_installed(pip_command):
+        if self.is_not_pip_installed(pip_command):
             logging.warn("pip is not installed on the machine")
             raise PipNotInstalledException("pip is not installed on the machine")
         return pip_command
 
-    def is_pip_installed(self, pip_command=None):
+    def is_not_pip_installed(self, pip_command=None):
         executable = pip_command[0]
         pip = pip_command[1]
-        proc = subprocess.run([executable] + [f"-m {pip} list"])
+        proc = subprocess.run([f"\"{executable}\"", f"{pip} list"])
         return proc.returncode
 
     def get_run_command(self, args):
         executable = self.pip[0]
         pip = self.pip[1]
-        return [executable, f"-m {pip} {args}"]
+        return [executable, f"{pip} {args}"]
 
     def get_set_cmd(self):
         return "set"

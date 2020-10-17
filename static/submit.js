@@ -14,13 +14,19 @@ function GetData() {
 	
 
 function SubmitReq() {
-	var xhr = new XMLHttpRequest();
+	let xhr = new XMLHttpRequest();
+	xhr.onreadystatechange  = function() {
+		let xhr_redirect = new XMLHttpRequest();
+		let data = JSON.parse(this.responseText)
+		let page = data["page"]
+		let msg = data["msg"]
+		if (msg == "None") {
+			window.location.replace( "/" + page)
+		} else {
+			window.location.replace( "/" + page + "/" + msg);
+		}
+	};
 	xhr.open("POST", "/submit", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	xhr.send(JSON.stringify(GetData()));
 }
-	
-// Material Select Initialization
-$(document).ready(function() {
-$('.mdb-select').materialSelect();
-});
