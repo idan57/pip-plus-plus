@@ -20,3 +20,7 @@ class PipRequestException(PipException):
 
 class PipProxyException(PipException):
     pass
+
+
+class PipUrlException(PipException):
+    pass

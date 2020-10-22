@@ -1,8 +1,10 @@
-import os
-import sys
-
 from view.application.web_pipper_factory import FlaskPipperFactory
 
-if __name__ == '__main__':
+
+def run():
     app = FlaskPipperFactory.get_pipper()
     app.run()
+
+
+if __name__ == '__main__':
+    run()

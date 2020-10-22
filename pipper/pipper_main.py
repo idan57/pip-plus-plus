@@ -4,6 +4,7 @@ import sys
 
 from utils.exceptions import PipException, PipNotInstalledException, PipInstallException, PipUnInstallException, \
     PipProxyException
+from utils.proxy.proxy_setters import ProxySetter
 
 EXCEPTIONS = {
     "install": PipInstallException,
@@ -22,6 +23,7 @@ class Pipper(object):
             self.proxies = kwargs["proxies"]
         self.version = ""
         self.pip = self.get_pip()
+        self.os = self._get_os()
         logging.info(f"Path to pip is: {self.pip}")
 
     def get_pip(self):
@@ -48,20 +50,13 @@ class Pipper(object):
         pass
 
     def _set_proxies(self):
-        http = self.proxies["http"]
-        https = self.proxies["https"]
-        if http:
-            p = subprocess.run(["export", f"http_proxy={http}"])
-            if p.returncode:
-                logging.error(f"Failed to set http proxy {http}")
-                raise PipProxyException(f"Failed to set http proxy {http}")
-        if http:
-            p = subprocess.run(["export", f"https_proxy={https}"])
-            if p.returncode:
-                logging.error(f"Failed to set http proxy {https}")
-                raise PipProxyException(f"Failed to set http proxy {https}")
+        proxy_setter = ProxySetter(self.os)
+        proxy_setter.set(self.proxies)
 
     def get_set_cmd(self):
+        pass
+
+    def _get_os(self):
         pass
 
 
@@ -93,6 +88,9 @@ class PipperLinux(Pipper):
     def get_set_cmd(self):
         return "export"
 
+    def _get_os(self):
+        return "Linux"
+
 
 class PipperWindows(Pipper):
     def __init__(self, **kwargs):
@@ -118,3 +116,6 @@ class PipperWindows(Pipper):
 
     def get_set_cmd(self):
         return "set"
+
+    def _get_os(self):
+        return "Windows"
