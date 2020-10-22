@@ -1,12 +1,17 @@
 import setuptools
 
-with open("pipplusplus/README.md", "r") as fh:
-    long_description = fh.read()
+try:
+    with open("pipplusplus/README.md", "r") as fh:
+        long_description = fh.read()
+except Exception:
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
 
 setuptools.setup(
     name="pip-plus-plus",
-    version="0.0.7",
+    version="0.0.14",
     author="Idan Cohen",
+    include_package_data=True,
     author_email="idan57@gmail.com",
     description="Pip++",
     long_description=long_description,
