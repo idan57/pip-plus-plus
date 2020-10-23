@@ -41,12 +41,14 @@ class Pipper(object):
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if proc.returncode:
             logging.warn(f"Failed to {self.args['function']} the package!")
-            raise EXCEPTIONS[self.args["function"]](f"Failed to {self.args['function']} the package!")
+            raise EXCEPTIONS[self.args["function"]](f"Failed to {self.args['function']} the package "
+                                                    f"\"{self.args['package']}\"!")
 
         res = proc.communicate()[0]
         res = res.decode("utf-8")
         if "error" in res.lower():
-            raise EXCEPTIONS[self.args["function"]](res)
+            raise EXCEPTIONS[self.args["function"]](f"Failed to {self.args['function']} the package "
+                                                    f"\"{self.args['package']}\"!")
         if self.args['function'] != "install" and self.args['function'] != "uninstall":
             return res
 
