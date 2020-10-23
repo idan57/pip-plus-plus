@@ -38,13 +38,17 @@ class Pipper(object):
         args = f"{self.args['function']} {self.args['upgrade']} {self.args['package']}"
         logging.info(f"Runnning pip {self.args['function']} on the machine.")
         command = self.get_run_command(args)
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if proc.returncode:
             logging.warn(f"Failed to {self.args['function']} the package!")
-            raise EXCEPTIONS[self.args["function"]]
+            raise EXCEPTIONS[self.args["function"]](f"Failed to {self.args['function']} the package!")
 
+        res = proc.communicate()[0]
+        res = res.decode("utf-8")
+        if "error" in res.lower():
+            raise EXCEPTIONS[self.args["function"]](res)
         if self.args['function'] != "install" and self.args['function'] != "uninstall":
-            return proc.communicate()[0]
+            return res
 
     def get_run_command(self, args):
         pass

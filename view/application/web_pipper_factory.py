@@ -1,4 +1,5 @@
 import json
+import os
 import pathlib
 
 from flask import render_template, url_for, request, make_response
@@ -13,12 +14,18 @@ class WebPipperFactory(object):
         pass
 
 
+def get_template_path():
+    package_path = os.path.realpath(os.path.join(__file__, "..", "..", ".."))
+    temp_path = os.path.join(package_path, "templates")
+    return temp_path
+
+
 class FlaskPipperFactory(WebPipperFactory):
     LIST_CACHED_MSG = ""
 
     @classmethod
     def get_pipper(cls, **kwargs):
-        app = FlaskPipper("Pipper")
+        app = FlaskPipper("Pipper", template_folder=get_template_path())
 
         @app.route("/")
         def main_page():

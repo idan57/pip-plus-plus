@@ -19,10 +19,10 @@ class ProxySetter(object):
         https = proxies["https"]
         url_validator = UrlValidator()
         err = ""
-        if not url_validator.valid(http):
+        if not url_validator.valid(http) and http:
             err += f"The http url is invalid: {http}"
 
-        if not url_validator.valid(https):
+        if not url_validator.valid(https) and http:
             if err:
                 err += "\n"
             err += f"The https url is invalid: {https}"
