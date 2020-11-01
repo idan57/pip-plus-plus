@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 
 from utils.Validator import UrlValidator
@@ -31,12 +32,6 @@ class ProxySetter(object):
             raise PipUrlException(err)
 
         if http:
-            p = subprocess.run([self.set_command, f"http_proxy={http}"])
-            if p.returncode:
-                logging.error(f"Failed to set http proxy {http}")
-                raise PipProxyException(f"Failed to set http proxy {http}")
-        if http:
-            p = subprocess.run([self.set_command, f"https_proxy={https}"])
-            if p.returncode:
-                logging.error(f"Failed to set http proxy {https}")
-                raise PipProxyException(f"Failed to set http proxy {https}")
+            os.environ["http_proxy"] = http
+        if https:
+            os.environ["https_proxy"] = https

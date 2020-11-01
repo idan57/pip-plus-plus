@@ -55,6 +55,12 @@ class FlaskPipperFactory(WebPipperFactory):
         def get_stat():
             id = request.args["id"]
             req = cls.REQUESTS[id]
+            if "page" in req and "list" == req["page"]:
+                req = {
+                    "page": "list",
+                    "msg": id,
+                    "status": "Done"
+                }
             response = make_response()
             response.data = str(req).replace("'", "\"")
             return response
@@ -85,10 +91,9 @@ class FlaskPipperFactory(WebPipperFactory):
         def failure(msg=""):
             return render_template("failure.html", msg=msg)
 
-        @app.route("/list")
-        def list_packages():
-            id = request.args["id"]
-            msg = UrlMessageListParser.parse(cls.REQUESTS[id]["msg"])
+        @app.route("/list/<proc_id>")
+        def list_packages(proc_id):
+            msg = UrlMessageListParser.parse(cls.REQUESTS[proc_id]["msg"])
             return render_template("list.html", msg=msg)
 
         @app.route("/waiting")
