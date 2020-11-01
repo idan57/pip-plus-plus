@@ -9,7 +9,7 @@ except Exception:
 
 setuptools.setup(
     name="pip-plus-plus",
-    version="0.0.14",
+    version="0.0.15",
     author="Idan Cohen",
     include_package_data=True,
     author_email="idan57@gmail.com",

@@ -15,7 +15,8 @@ class UrlMessageListParser(UrlMessageParser):
                 splitted = res[i].split(" " * num_of_space)
                 if splitted[0] == ("-" * len(splitted[0])) and splitted[1] == ("-" * len(splitted[1])):
                     minus_line_index = i
-                res[i] = [splitted[0].strip(), splitted[1].strip()]
+                if len(splitted) == 2:
+                    res[i] = [splitted[0].strip(), splitted[1].strip()]
             else:
                 del res[i]
         if minus_line_index:

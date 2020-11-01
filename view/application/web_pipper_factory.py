@@ -1,17 +1,37 @@
 import json
+import logging
 import os
 import pathlib
+import _thread
 
 from flask import render_template, url_for, request, make_response
+
+from pipper.pipper_gen import PipperGenerator
+from utils.exceptions import PipException, PipRequestException
+from utils.thread_safe_dict import ThreadSafeDict
 from utils.url_msg_parser import UrlMessageListParser
 
 from view.application.flask_piper import FlaskPipper
+
 
 
 class WebPipperFactory(object):
     @classmethod
     def get_pipper(cls, **kwargs):
         pass
+
+
+def command_runner(run_command, data, req_method):
+    print("Starting command")
+    FlaskPipperFactory.REQUESTS[data["id"]] = ThreadSafeDict()
+    page, msg = run_command(data, req_type=req_method)
+    if not msg:
+        msg = "None"
+
+    print("Finishing command")
+    FlaskPipperFactory.REQUESTS[data["id"]]["page"] = page
+    FlaskPipperFactory.REQUESTS[data["id"]]["msg"] = msg
+    FlaskPipperFactory.REQUESTS[data["id"]]["status"] = "Done"
 
 
 def get_template_path():
@@ -21,7 +41,7 @@ def get_template_path():
 
 
 class FlaskPipperFactory(WebPipperFactory):
-    LIST_CACHED_MSG = ""
+    REQUESTS = ThreadSafeDict()
 
     @classmethod
     def get_pipper(cls, **kwargs):
@@ -31,6 +51,14 @@ class FlaskPipperFactory(WebPipperFactory):
         def main_page():
             return render_template("home.html")
 
+        @app.route("/status", methods=['GET'])
+        def get_stat():
+            id = request.args["id"]
+            req = cls.REQUESTS[id]
+            response = make_response()
+            response.data = str(req).replace("'", "\"")
+            return response
+
         @app.route("/about")
         def about():
             return render_template("about.html")
@@ -38,20 +66,13 @@ class FlaskPipperFactory(WebPipperFactory):
         @app.route("/submit", methods=['GET', 'POST'])
         def submit_request():
             data = json.loads(request.data)
-            page, msg = app.run_command(data, req_type=request.method)
-            if not msg:
-                msg = "None"
+            cls.REQUESTS[data["id"]] = ThreadSafeDict()
+            cls.REQUESTS[data["id"]]["status"] = "Processed"
 
-            if page == "list":
-                cls.LIST_CACHED_MSG = msg.decode("utf-8")
-                msg = "None"
+            _thread.start_new_thread(command_runner, (app.run_command, data, request.method))
 
-            resp_msg = {
-                "page": page,
-                "msg": msg
-            }
             response = make_response()
-            response.data = str(resp_msg).replace("'", "\"")
+            response.data = str(cls.REQUESTS[data["id"]]).replace("'", "\"")
             return response
 
         @app.route("/success")
@@ -65,10 +86,15 @@ class FlaskPipperFactory(WebPipperFactory):
             return render_template("failure.html", msg=msg)
 
         @app.route("/list")
-        @app.route("/list/<msg>")
-        def list_packages(msg=""):
-            msg = UrlMessageListParser.parse(cls.LIST_CACHED_MSG)
+        def list_packages():
+            id = request.args["id"]
+            msg = UrlMessageListParser.parse(cls.REQUESTS[id]["msg"])
             return render_template("list.html", msg=msg)
+
+        @app.route("/waiting")
+        def waiting_page():
+            proc_id = request.args["id"]
+            return render_template("waiting.html", msg=proc_id)
 
         with app.test_request_context():
             cls.set_static()
