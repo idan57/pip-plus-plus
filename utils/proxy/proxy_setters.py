@@ -23,7 +23,7 @@ class ProxySetter(object):
         if not url_validator.valid(http) and http:
             err += f"The http url is invalid: {http}"
 
-        if not url_validator.valid(https) and http:
+        if not url_validator.valid(https) and https:
             if err:
                 err += "\n"
             err += f"The https url is invalid: {https}"
