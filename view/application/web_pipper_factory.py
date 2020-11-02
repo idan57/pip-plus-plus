@@ -1,18 +1,13 @@
+import _thread
 import json
-import logging
 import os
 import pathlib
-import _thread
 
 from flask import render_template, url_for, request, make_response
 
-from pipper.pipper_gen import PipperGenerator
-from utils.exceptions import PipException, PipRequestException
 from utils.thread_safe_dict import ThreadSafeDict
 from utils.url_msg_parser import UrlMessageListParser
-
 from view.application.flask_piper import FlaskPipper
-
 
 
 class WebPipperFactory(object):

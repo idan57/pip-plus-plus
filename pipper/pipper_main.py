@@ -2,8 +2,7 @@ import logging
 import subprocess
 import sys
 
-from utils.exceptions import PipException, PipNotInstalledException, PipInstallException, PipUnInstallException, \
-    PipProxyException
+from utils.exceptions import PipException, PipNotInstalledException, PipInstallException, PipUnInstallException
 from utils.proxy.proxy_setters import ProxySetter
 
 EXCEPTIONS = {

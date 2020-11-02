@@ -29,6 +29,3 @@ class PathlibFileSearcher(object):
             if "Python" in val and "Scripts" in val:
                 return [val]
         return []
-
-
-

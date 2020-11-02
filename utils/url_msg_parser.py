@@ -22,4 +22,3 @@ class UrlMessageListParser(UrlMessageParser):
         if minus_line_index:
             del res[minus_line_index]
         return res
-

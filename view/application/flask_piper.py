@@ -36,5 +36,3 @@ class FlaskPipper(Flask):
                 return on_success, out
             except PipException as e:
                 return "failure", str(e)
-
-

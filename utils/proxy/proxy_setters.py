@@ -1,9 +1,7 @@
-import logging
 import os
-import subprocess
 
 from utils.Validator import UrlValidator
-from utils.exceptions import PipProxyException, PipUrlException
+from utils.exceptions import PipUrlException
 
 
 class ProxySetter(object):
